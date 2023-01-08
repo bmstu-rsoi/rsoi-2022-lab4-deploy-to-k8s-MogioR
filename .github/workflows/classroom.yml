@@ -21,19 +21,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-#      - name: Build and publish images
-#        timeout-minutes: 15
-#        run: |
-#          docker buildx build --push -t mogior/rsoi_cars_service:v1 -f src/cars_service/Dockerfile src/cars_service
-#          docker buildx build --push -t mogior/rsoi_gate_way_service:v1 -f src/gate_way_service/Dockerfile src/gate_way_service
-#          docker buildx build --push -t mogior/rsoi_rental_service:v1 -f src/rental_service/Dockerfile src/rental_service
-#          docker buildx build --push -t mogior/rsoi_payment_service:v1 -f src/payment_service/Dockerfile src/payment_service
+      - name: Build and publish images
+        timeout-minutes: 15
+        run: |
+          docker buildx build --push -t mogior/rsoi_cars_service:v1 -f src/cars_service/Dockerfile src/cars_service
+          docker buildx build --push -t mogior/rsoi_gate_way_service:v1 -f src/gate_way_service/Dockerfile src/gate_way_service
+          docker buildx build --push -t mogior/rsoi_rental_service:v1 -f src/rental_service/Dockerfile src/rental_service
+          docker buildx build --push -t mogior/rsoi_payment_service:v1 -f src/payment_service/Dockerfile src/payment_service
 
       - name: Deploy
         run: |
           mkdir -p '${{ github.workspace }}/.kube' \
                     && echo '${{ secrets.KUBECONFIG}}' > $KUBECONFIG
-          helm upgrade app --kubeconfig $KUBECONFIG .k8s/charts/services
+          cd k8s/charts/services
+          helm upgrade app --kubeconfig $KUBECONFIG .
           sleep 60
 
       - name: Run API Tests
