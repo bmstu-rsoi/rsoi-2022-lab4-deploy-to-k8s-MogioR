@@ -36,6 +36,8 @@ jobs:
           curl -sSL \
             https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh \
           | bash
+          source "/home/runner/.bashrc"
+
           cd k8s/charts/services
           helm upgrade app --kubeconfig $KUBECONFIG .
           sleep 60
