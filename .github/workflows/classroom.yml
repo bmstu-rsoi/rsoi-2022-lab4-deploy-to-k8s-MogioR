@@ -39,7 +39,7 @@ jobs:
           source "/home/runner/.bashrc"
 
           cd k8s/charts/services
-          helm upgrade app --kubeconfig $KUBECONFIG .
+          helm upgrade app . --kubeconfig $KUBECONFIG
           sleep 60
 
       - name: Run API Tests
