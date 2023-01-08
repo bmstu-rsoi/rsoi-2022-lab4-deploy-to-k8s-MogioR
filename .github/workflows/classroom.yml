@@ -16,25 +16,25 @@ jobs:
       - uses: docker/setup-buildx-action@v2
 
       - name: Login to Docker Hub
-          uses: docker/login-action@v2
-          with:
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and publish images
-          timeout-minutes: 15
-          run: |
-            docker buildx build --push -t mogior/rsoi_cars_service:v1 -f src/cars_service/Dockerfile src/cars_service
-            docker buildx build --push -t mogior/rsoi_gate_way_service:v1 -f src/gate_way_service/Dockerfile src/gate_way_service
-            docker buildx build --push -t mogior/rsoi_rental_service:v1 -f src/rental_service/Dockerfile src/rental_service
-            docker buildx build --push -t mogior/rsoi_payment_service:v1 -f src/payment_service/Dockerfile src/payment_service
+        timeout-minutes: 15
+        run: |
+          docker buildx build --push -t mogior/rsoi_cars_service:v1 -f src/cars_service/Dockerfile src/cars_service
+          docker buildx build --push -t mogior/rsoi_gate_way_service:v1 -f src/gate_way_service/Dockerfile src/gate_way_service
+          docker buildx build --push -t mogior/rsoi_rental_service:v1 -f src/rental_service/Dockerfile src/rental_service
+          docker buildx build --push -t mogior/rsoi_payment_service:v1 -f src/payment_service/Dockerfile src/payment_service
 
       - name: Deploy
-          run: |
-            mkdir -p '${{ github.workspace }}/.kube' \
-                      && echo '${{ secrets.KUBECONFIG}}' | base64 -d > $KUBECONFIG
-            helm upgrade app --kubeconfig $KUBECONFIG .k8s/charts/services
-            sleep 60
+        run: |
+          mkdir -p '${{ github.workspace }}/.kube' \
+                    && echo '${{ secrets.KUBECONFIG}}' | base64 -d > $KUBECONFIG
+          helm upgrade app --kubeconfig $KUBECONFIG .k8s/charts/services
+          sleep 60
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
