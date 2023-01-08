@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: "{{ .Values.service.image.version }}"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: micro-services
+    app.kubernetes.io/managed-by: helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/version: "{{ .Values.service.image.version }}"
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: car-order-service
+        app.kubernetes.io/managed-by: helm
+    spec:
+      containers:
+        - name: {{ .Chart.Name}}
+          imagePullPolicy: Always
+          image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
+          env:
+            {{ if eq .Values.service.type "service" }}
+            - name: DATA_BASE_PORT
+              value: "5432"
+            - name: DATA_BASE_NAME
+              value: "postgres"
+            - name: DATA_BASE_USER
+              value: "postgres"
+            - name: DATA_BASE_PASS
+              value: "8Rvbs9i9obYzU5cv"
+            - name: DATA_BASE_HOST
+              value: "db.lwyekailhpupnhywwptq.supabase.co"
+            {{ end }}
+            {{ if eq .Values.service.type "gateway" }}
+            - name: CARS_SERVICE_HOST
+              value: "car-service"
+            - name: CARS_SERVICE_PORT
+              value: "8070"
+            - name: PAYMENT_SERVICE_HOST
+              value: "payment-service"
+            - name: PAYMENT_SERVICE_PORT
+              value: "8050"
+            - name: RENTAL_SERVICE_HOST
+              value: "rental-service"
+            - name: RENTAL_SERVICE_PORT
+              value: "8060"
+            {{ end }}
+          ports:
+            - containerPort: {{ .Values.service.port }}

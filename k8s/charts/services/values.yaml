@@ -1,0 +1,31 @@
+gateway:
+  service:
+    image: 
+      name: mogior/rsoi_gate_way_service
+      version: "v1"
+    port: 8080
+    type: "gateway"
+
+car:
+  service:
+    image: 
+        name: mogior/rsoi_cars_service
+        version: "v1"
+    port: 8070
+    type: "service"
+
+rental:
+  service:
+    image: 
+      name: mogior/rsoi_rental_service
+      version: "v1"
+    port: 8060
+    type: "service"
+
+payment:
+  service:
+    image: 
+      name: mogior/rsoi_payment_service
+      version: "v1"
+    port: 8050
+    type: "service"

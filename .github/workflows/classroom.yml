@@ -2,6 +2,8 @@ name: GitHub Classroom Workflow
 on:
   push:
     branches: [ master ]
+env:
+  KUBECONFIG: ${{ github.workspace }}/.kube/pod-kubeconfig
 jobs:
   build:
     name: Autograding
@@ -13,13 +15,32 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      # TODO build, publish to docker hub, deploy to k8s
+      - name: Login to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKERHUB_USER }}
+            password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and publish images
+          timeout-minutes: 15
+          run: |
+            docker buildx build --push -t mogior/rsoi_cars_service:v1 -f src/cars_service/Dockerfile src/cars_service
+            docker buildx build --push -t mogior/rsoi_gate_way_service:v1 -f src/gate_way_service/Dockerfile src/gate_way_service
+            docker buildx build --push -t mogior/rsoi_rental_service:v1 -f src/rental_service/Dockerfile src/rental_service
+            docker buildx build --push -t mogior/rsoi_payment_service:v1 -f src/payment_service/Dockerfile src/payment_service
+
+      - name: Deploy
+          run: |
+            mkdir -p '${{ github.workspace }}/.kube' \
+                      && echo '${{ secrets.KUBECONFIG}}' | base64 -d > $KUBECONFIG
+            helm upgrade app --kubeconfig $KUBECONFIG .k8s/charts/services
+            sleep 60
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          collection: <variant>/postman/collection.json
-          environment: <variant>/postman/environment.json
+          collection: v3/postman/collection.json
+          environment: v3/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 
