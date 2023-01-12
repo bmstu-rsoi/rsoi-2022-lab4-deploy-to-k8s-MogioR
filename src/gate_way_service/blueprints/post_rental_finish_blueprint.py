@@ -21,7 +21,7 @@ async def post_rental_finish(rentalUid: str) -> Response:
                 'errors': ['Rental service is unavailable.']
             })
         )
-   elif response.status_code % 100 != 2:
+    elif response.status_code % 100 != 2:
         return Response(
             status=response.status_code,
             content_type='application/json',
